@@ -12,8 +12,12 @@ press ENTER
 
 2) convert your project to eclipse web application
  cd projectDirectory
-	mvn eclipse:eclipse -Dwtpversion-2.0
+	mvn eclipse:eclipse -Dwtpversion-3.0
 	
+	
+if you do not see the webapp folder and other webapp folder structure 
+go to configure - faceted project - choose Dymanic web module 3.0
+
 Please remember that adding “-Dwtpversion=2.0” is necessary,
 otherwise using only “mvn eclipse:eclipse” will convert it to only normal java application, 
 and you will not be able to run it as other eclipse web applications.
@@ -56,6 +60,73 @@ package: com.springSecurityTest
 [INFO] Total time: 01:57 min
 [INFO] Finished at: 2018-03-20T13:50:55-04:00
 [INFO] Final Memory: 15M/196M
+
+
+
+ERRORS:
+1) Description	Resource	Path	Location	Type
+Java compiler level does not match the version of the installed Java project facet.	SpringSecurityTest	
+	add maven.plugin or maven.source and maven.target version in the pom's properties tag
+	
+	option1:
+			add this to your pom'x properties element
+		//<properties>
+			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			<maven.compiler.source>1.8</maven.compiler.source>
+			<maven.compiler.target>1.8</maven.compiler.target>
+			<maven.compiler.failOnError>false</maven.compiler.failOnError> 
+		//</properties>
+		
+	Option2:
+		<build>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build> 
+	
+	
+
+2) java.lang.ClassNotFoundException: org.springframework.web.context.ContextLoaderListener
+	The Servlet container is not able to load the spring's ContextLoaderListener class. why? becasue it is not on the servers runtime classpath
+	to solve this issue: do the following
+	Open the project's properties (e.g., right-click on the project's name in the project explorer and select "Properties").
+	1) Select "Deployment Assembly".
+	2) Click the "Add..." button on the right margin.
+	3) Select "Java Build Path Entries" from the menu of Directive Type and click "Next".
+	4) Select "Maven Dependencies" from the Java Build Path Entries menu and click "Finish".
+	5) You should see "Maven Dependencies" added to the Web Deployment Assembly definition.
+
+	
+3)ava.lang.NoSuchMethodException: org.apache.catalina.deploy.WebXml addServlet
+	 add the follwing dependecy 
+
+	<dependency>
+		  <groupId>org.apache.tomcat</groupId>
+		  <artifactId>tomcat-catalina</artifactId>
+		  <version>7.0.47</version>
+		  <scope>provided</scope>
+	</dependency>
+	
+	The container ( here tomcat ) itself provides some dependencies ( like tomcat-catalina jar ) 
+	when you deploy your app. So you don't need to include them in your application. 
+	But the jars are needed for compilation. This is achieved by setting the scope as 'provided'
+	
+4) if you get springs. schema.tx issue <- web.xml is complaining about not finding the location for springs/schema/tx 
+	all the schema and their namespae proerties are retrive from the jar file that maven installs
+add the following in the dependecny
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-tx</artifactId>
+    <version>4.1.0.RELEASE</version>
+</dependency>
+	
+	
 
  
  
